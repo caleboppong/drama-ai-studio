@@ -565,3 +565,97 @@ revoke all on function public.apply_credit_refund(text, integer) from public, an
 grant execute on function public.apply_credit_refund(text, integer) to service_role;
 revoke all on function public.reconcile_credit_debt(uuid) from public, anon, authenticated;
 grant execute on function public.reconcile_credit_debt(uuid) to service_role;
+
+create or replace function public.reserve_generation_credits(
+  p_job_id uuid,
+  p_credits integer
+)
+returns boolean
+language plpgsql
+security definer
+set search_path = ''
+as $function$
+declare
+  v_user_id uuid := auth.uid();
+  v_available integer;
+  v_required integer;
+  v_debt integer;
+begin
+  if v_user_id is null then
+    raise exception 'Not authenticated';
+  end if;
+
+  if p_credits is null or p_credits <= 0 then
+    raise exception 'Invalid credit amount';
+  end if;
+
+  select credits_required
+  into v_required
+  from public.generation_jobs
+  where id = p_job_id
+    and user_id = v_user_id
+    and status = 'quoted'
+  for update;
+
+  if v_required is null then
+    raise exception 'Generation job is not available for reservation';
+  end if;
+
+  if v_required <> p_credits then
+    raise exception 'Credit amount does not match the server quote';
+  end if;
+
+  select available_credits, credit_debt
+  into v_available, v_debt
+  from public.credit_wallets
+  where user_id = v_user_id
+  for update;
+
+  if coalesce(v_debt, 0) > 0 then
+    raise exception 'Account restricted due to outstanding credit debt';
+  end if;
+
+  if coalesce(v_available, 0) < p_credits then
+    return false;
+  end if;
+
+  update public.credit_wallets
+  set
+    available_credits = available_credits - p_credits,
+    reserved_credits = reserved_credits + p_credits,
+    updated_at = now()
+  where user_id = v_user_id;
+
+  update public.generation_jobs
+  set
+    status = 'reserved',
+    credits_reserved = p_credits,
+    current_stage = 'reserved',
+    progress = 0
+  where id = p_job_id
+    and user_id = v_user_id;
+
+  insert into public.credit_transactions (
+    user_id,
+    amount,
+    transaction_type,
+    description,
+    generation_job_id
+  )
+  values (
+    v_user_id,
+    -p_credits,
+    'reserve',
+    'Credits reserved for AI generation',
+    p_job_id
+  );
+
+  return true;
+end;
+$function$;
+
+revoke execute on function public.reserve_generation_credits(uuid, integer)
+from public, anon;
+
+grant execute on function public.reserve_generation_credits(uuid, integer)
+to authenticated, service_role;

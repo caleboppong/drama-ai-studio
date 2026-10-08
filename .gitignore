@@ -39,3 +39,35 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+build/
+dist/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Generated media
+*.mp4
+*.mov
+*.wav
+*.mp3
+*.webm
+
+# Temporary files
+tmp/
+temp/
+*.log
+
+# Vercel
+.vercel/
+FINAL_SETUP.txt

@@ -14,7 +14,7 @@ function createUserClient(token) {
           Authorization: `Bearer ${token}`,
         },
       },
-    }
+    },
   );
 }
 
@@ -28,7 +28,7 @@ export async function POST(request) {
           success: false,
           message: "Authentication required.",
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -46,7 +46,7 @@ export async function POST(request) {
           success: false,
           message: "Your session is invalid.",
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -59,17 +59,31 @@ export async function POST(request) {
           success: false,
           message: "Invalid credit pack.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const stripe = getStripe();
 
-    const configuredAppUrl =
-      process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "");
+    const configuredAppUrl = process.env.NEXT_PUBLIC_APP_URL;
 
-    const requestOrigin = new URL(request.url).origin;
-    const appUrl = configuredAppUrl || requestOrigin;
+    if (!configuredAppUrl) {
+      throw new Error("NEXT_PUBLIC_APP_URL is not configured.");
+    }
+
+    const parsedAppUrl = new URL(configuredAppUrl);
+
+    if (
+      parsedAppUrl.protocol !== "https:" &&
+      !(
+        process.env.NODE_ENV !== "production" &&
+        parsedAppUrl.origin === "http://localhost:3000"
+      )
+    ) {
+      throw new Error("Invalid application URL configuration.");
+    }
+
+    const appUrl = parsedAppUrl.origin;
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -118,11 +132,9 @@ export async function POST(request) {
     return Response.json(
       {
         success: false,
-        message:
-          error?.message ||
-          "Could not start checkout.",
+        message: error?.message || "Could not start checkout.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

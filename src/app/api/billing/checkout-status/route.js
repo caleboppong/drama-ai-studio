@@ -13,130 +13,109 @@ function createUserClient(token) {
           Authorization: `Bearer ${token}`,
         },
       },
-    }
+    },
   );
 }
 
 export async function POST(request) {
   try {
-    const authHeader =
-      request.headers.get("authorization");
+    const authHeader = request.headers.get("authorization");
 
     if (!authHeader?.startsWith("Bearer ")) {
       return Response.json(
         {
           success: false,
-          message:
-            "Authentication required.",
+          message: "Authentication required.",
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
-    const token =
-      authHeader.replace("Bearer ", "");
+    const token = authHeader.replace("Bearer ", "");
 
-    const supabase =
-      createUserClient(token);
+    const supabase = createUserClient(token);
 
     const {
       data: { user },
       error: userError,
-    } = await supabase.auth.getUser(
-      token
-    );
+    } = await supabase.auth.getUser(token);
 
     if (userError || !user) {
       return Response.json(
         {
           success: false,
-          message:
-            "Your session is invalid.",
+          message: "Your session is invalid.",
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
-    const body =
-      await request.json();
+    const body = await request.json();
 
     if (!body.sessionId) {
       return Response.json(
         {
           success: false,
-          message:
-            "Checkout session ID is required.",
+          message: "Checkout session ID is required.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const stripe = getStripe();
 
-    const session =
-      await stripe.checkout.sessions.retrieve(
-        body.sessionId
-      );
+    const session = await stripe.checkout.sessions.retrieve(body.sessionId);
 
-    const owner =
-      session.metadata?.user_id ||
-      session.client_reference_id;
+    const owner = session.metadata?.user_id || session.client_reference_id;
 
     if (owner !== user.id) {
       return Response.json(
         {
           success: false,
-          message:
-            "This checkout does not belong to your account.",
+          message: "This checkout does not belong to your account.",
         },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
-    const { data: purchase } =
-      await supabase
-        .from("credit_purchases")
-        .select(
-          "id, pack_id, credits, amount_pence, currency, status, created_at"
-        )
-        .eq(
-          "stripe_checkout_session_id",
-          session.id
-        )
-        .eq("user_id", user.id)
-        .maybeSingle();
+    const { data: purchase, error: purchaseError } = await supabase
+      .from("credit_purchases")
+      .select(
+        "id, pack_id, credits, amount_pence, currency, status, created_at",
+      )
+      .eq("stripe_checkout_session_id", session.id)
+      .eq("user_id", user.id)
+      .maybeSingle();
 
-    const { data: wallet } =
-      await supabase
-        .from("credit_wallets")
-        .select(
-          "available_credits, reserved_credits"
-        )
-        .eq("user_id", user.id)
-        .single();
+    if (purchaseError) {
+      throw new Error("Could not retrieve credit purchase.");
+    }
+
+    const { data: wallet, error: walletError } = await supabase
+      .from("credit_wallets")
+      .select("available_credits, reserved_credits")
+      .eq("user_id", user.id)
+      .single();
+    if (walletError) {
+      throw new Error("Could not retrieve credit wallet.");
+    }
 
     return Response.json({
       success: true,
-      paymentStatus:
-        session.payment_status,
+      paymentStatus: session.payment_status,
       credited: Boolean(purchase),
       purchase: purchase || null,
       wallet: wallet || null,
     });
   } catch (error) {
-    console.error(
-      "DramaAI checkout status error:",
-      error
-    );
+    console.error("DramaAI checkout status error:", error);
 
     return Response.json(
       {
         success: false,
-        message:
-          error?.message ||
-          "Could not check payment status.",
+        message: error?.message || "Could not check payment status.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

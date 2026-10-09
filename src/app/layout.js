@@ -8,7 +8,7 @@ const inter = Inter({
 });
 
 export const metadata = {
-  title: "DramaAI Studio",
+  title: "DramaAI Studio | Create Cinematic AI Stories",
   description:
     "Create episodic AI short dramas with story continuity, cinematic visuals, narration and captions.",
 };

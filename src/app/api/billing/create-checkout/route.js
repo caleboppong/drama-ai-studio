@@ -50,6 +50,26 @@ export async function POST(request) {
       );
     }
 
+    // Verify customer contact information on the server before creating any Stripe session.
+    const { data: profile, error: profileError } = await supabase
+      .from("customer_profiles")
+      .select("full_name,phone,address_line1,city,country")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (profileError) {
+      console.error("Checkout profile lookup failed:", profileError.message);
+      return Response.json({ success: false, message: "Profile verification is temporarily unavailable. Please try again later." }, { status: 503 });
+    }
+    const requiredFields = ["full_name", "phone", "address_line1", "city", "country"];
+    if (!profile || requiredFields.some((field) => !String(profile[field] || "").trim()) ||
+        !/^\+[1-9]\d{6,14}$/.test(String(profile.phone || "").replace(/[\s()-]/g, ""))) {
+      return Response.json({ success: false, code: "PROFILE_INCOMPLETE", message: "Complete your required contact and address details in My Profile before purchasing credits.", profileUrl: "/profile" }, { status: 403 });
+    }
+    if (!user.email_confirmed_at) {
+      return Response.json({ success: false, code: "EMAIL_UNVERIFIED", message: "Verify your email address before purchasing credits." }, { status: 403 });
+    }
+
     const body = await request.json();
     const pack = getCreditPack(body.packId);
 

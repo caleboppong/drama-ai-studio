@@ -43,8 +43,11 @@ export default function LoginPage() {
   return (
     <main className="auth-page">
       <section className="auth-brand">
+        <div className="auth-art" aria-hidden="true" />
+        <div className="auth-light auth-light-one" aria-hidden="true" />
+        <div className="auth-light auth-light-two" aria-hidden="true" />
         <Link href="/" className="auth-logo">
-          <span>D</span>
+          <span className="auth-logo-play" aria-hidden="true">▶</span>
           <div>
             <strong>DramaAI</strong>
             <small>Studio</small>
@@ -66,19 +69,22 @@ export default function LoginPage() {
           </p>
         </div>
 
+        <div className="auth-scene-card" aria-hidden="true"><span className="auth-scene-play">▶</span><span><strong>Every story deserves the big screen.</strong><small>CREATE · DIRECT · SHARE</small></span></div>
         <p className="auth-footer">
           From one idea to a complete episodic drama.
         </p>
       </section>
 
       <section className="auth-form-side">
+        <div className="auth-orb auth-orb-one" aria-hidden="true" />
+        <div className="auth-orb auth-orb-two" aria-hidden="true" />
         <form className="auth-card" onSubmit={handleLogin}>
           <div className="auth-mobile-logo">
-            <span>D</span>
+            <span className="auth-logo-play" aria-hidden="true">▶</span>
             <strong>DramaAI Studio</strong>
           </div>
 
-          <p className="auth-step">CREATOR LOGIN</p>
+          <p className="auth-step">LOGIN</p>
           <h2>Welcome back</h2>
 
           <p className="auth-subtitle">

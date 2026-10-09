@@ -1771,7 +1771,7 @@ export default function Home() {
       <aside className="sidebar">
         <div>
           <div className="brand">
-            <div className="brand-mark">D</div>
+            <div className="brand-mark"><img src="/favicon.ico" alt="" width="30" height="30" /></div>
             <div>
               <strong>DramaAI</strong>
               <span>Studio</span>
@@ -1795,6 +1795,14 @@ export default function Home() {
             >
               <span>＋</span>
               Create Drama
+            </button>
+
+            <button
+              type="button"
+              onClick={() => router.push("/characters")}
+            >
+              <span aria-hidden="true">♧</span>
+              Character Studio
             </button>
 
             <button
@@ -1923,31 +1931,55 @@ export default function Home() {
 
         {activePage === "dashboard" && (
           <>
-            <section className="hero">
-              <div>
-                <span className="eyebrow">AI SHORT DRAMA STUDIO</span>
-                <h2>Turn one story idea into an episodic drama series.</h2>
-                <p>
-                  Create vertical short-form episodes with story continuity,
-                  cinematic visuals, narration, captions and production controls
-                  designed for TikTok, Reels and Shorts.
-                </p>
-                <button type="button" onClick={openCreatePage}>
-                  Create New Drama
-                </button>
-              </div>
-
-              <div className="hero-visual">
-                <div className="phone">
-                  <div className="phone-screen">
-                    <span>DRAMAAI ORIGINAL</span>
-                    <div className="phone-story">
-                      <small>EPISODE 02</small>
-                      <strong>The Secret Between Us</strong>
-                    </div>
-                    <small>9:16 AI DRAMA</small>
-                  </div>
+            <section className="hero cinematic-hero">
+              <div className="cinematic-hero-copy">
+                <span className="eyebrow">✦ YOUR IMAGINATION, ON SCREEN</span>
+                <h2>Create cinematic <span>AI stories &amp; videos</span> for everyone.</h2>
+                <p>Build unforgettable characters, shape compelling stories and bring your imagination to life — from first idea to finished film.</p>
+                <div className="cinematic-hero-actions">
+                  <button type="button" onClick={openCreatePage}>✦ Start Creating <span aria-hidden="true">→</span></button>
+                  <button type="button" className="cinematic-secondary" onClick={() => setActivePage("library")}>Explore My Library</button>
+                  <button type="button" className="cinematic-secondary" onClick={() => router.push("/characters")}>♧ Character Studio</button>
                 </div>
+                <div className="cinematic-hero-note"><span>✦</span> Your story. Your characters. Your creative world.</div>
+              </div>
+              <div className="cinematic-hero-art" role="img" aria-label="Cinematic collage featuring a diverse cast of story characters">
+                <div className="cinematic-float cinematic-float-top">✦ AI Story Studio</div>
+                <div className="cinematic-float cinematic-float-bottom">▶ 9:16 · Cinematic stories</div>
+              </div>
+            </section>
+
+            <section className="cinematic-genres" aria-label="Explore story genres">
+              <div className="cinematic-section-title"><div><span className="eyebrow">CREATE WITHOUT LIMITS</span><h2>Every genre. Every voice. Every story.</h2><p>Choose your inspiration and make the next story your own.</p></div><button type="button" onClick={openCreatePage}>Create a Story →</button></div>
+              <div className="cinematic-genre-grid">
+                {[
+                  ["Drama", "Stories that stay with you"],
+                  ["Romance", "Love in every language"],
+                  ["Thriller", "Uncover the unexpected"],
+                  ["Action", "Big moments, bold worlds"],
+                  ["Fantasy", "Beyond imagination"],
+                  ["Adventure", "Discover a new world"],
+                ].map(([name, description], index) => (
+                  <button type="button" className={`cinematic-genre-card cinematic-genre-${index + 1}`} key={name} onClick={() => { setGenre(name); openCreatePage(); }}>
+                    <span className="cinematic-genre-art" aria-hidden="true" />
+                    <span className="cinematic-genre-content"><strong>{name}</strong><small>{description}</small></span>
+                    <span className="cinematic-genre-arrow" aria-hidden="true">↗</span>
+                  </button>
+                ))}
+              </div>
+            </section>
+
+            <section className="character-studio-promo" aria-labelledby="character-studio-title">
+              <div className="character-studio-promo-art" aria-hidden="true">
+                <span className="character-studio-orb character-studio-orb-one" />
+                <span className="character-studio-orb character-studio-orb-two" />
+                <span className="character-studio-portrait">✦</span>
+              </div>
+              <div className="character-studio-promo-copy">
+                <span className="eyebrow">BUILD YOUR CAST</span>
+                <h2 id="character-studio-title">Meet your next unforgettable character.</h2>
+                <p>Create a character profile, upload a portrait, choose a voice and keep your cast organised for future stories. AI portrait generation is coming later.</p>
+                <button type="button" onClick={() => router.push("/characters")}>Open Character Studio <span aria-hidden="true">→</span></button>
               </div>
             </section>
 

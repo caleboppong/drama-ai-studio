@@ -71,3 +71,12 @@ temp/
 # Vercel
 .vercel/
 FINAL_SETUP.txt
+
+@"
+node_modules/
+.next/
+.env
+.env.*
+!.env.example
+.vercel/
+"@ | Add-Content .gitignore

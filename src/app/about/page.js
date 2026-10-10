@@ -1,0 +1,5 @@
+import Link from "next/link";
+import MarketingLayout from "@/components/marketing/MarketingLayout";
+import s from "@/components/marketing/marketing.module.css";
+export const metadata={title:"About | DramaAI Studio"};
+export default function About(){return <MarketingLayout><header className={s.pageHero}><p className={s.eyebrow}>Our vision</p><h1 className={s.h1}>Stories without <span className={s.gradient}>creative limits.</span></h1><p className={s.lead}>DramaAI Studio is built around a simple idea: making AI-assisted storytelling and cinematic short-form creation more accessible.</p></header><section className={s.section}><div className={s.grid}><article className={s.card}><h3>Imagine</h3><p>Start with a concept, genre or character.</p></article><article className={s.card}><h3>Create</h3><p>Develop episodes and build scenes in your studio.</p></article><article className={s.card}><h3>Produce</h3><p>Use the production workflow to bring your stories closer to screen-ready.</p></article></div><div className={s.actions}><Link href="/signup" className={s.primary}>Join DramaAI Studio ↗</Link></div></section></MarketingLayout>}

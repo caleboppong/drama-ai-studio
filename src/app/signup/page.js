@@ -64,7 +64,7 @@ export default function SignupPage() {
     setName("");
     setEmail("");
     setPassword("");
-    router.push("/");
+    router.push("/studio");
     router.refresh();
   }
 

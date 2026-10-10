@@ -1,0 +1,5 @@
+import Link from "next/link";
+import MarketingLayout from "@/components/marketing/MarketingLayout";
+import s from "@/components/marketing/marketing.module.css";
+export const metadata={title:"Explore | DramaAI Studio"};
+export default function Explore(){return <MarketingLayout><header className={s.pageHero}><p className={s.eyebrow}>Creative inspiration</p><h1 className={s.h1}>Find your <span className={s.gradient}>next story.</span></h1><p className={s.lead}>Explore the visual styles and genres available to inspire your next creation. These images are illustrative genre artwork, not finished customer videos.</p></header><section className={s.section}><div className={s.showcase}>{["Drama","Romance","Thriller","Action","Fantasy","Adventure"].map((name,i)=><figure key={name}><img src={`/dramaai-genre-${i+1}.webp`} alt={`${name} genre artwork`}/><figcaption>{name}</figcaption></figure>)}</div><div className={s.actions}><Link className={s.primary} href="/signup">Create your story ↗</Link></div></section></MarketingLayout>}

@@ -31,7 +31,7 @@ export default function LoginPage() {
         return;
       }
 
-      router.push("/");
+      router.push("/studio");
       router.refresh();
     } catch (error) {
       setMessage(error.message || "Unable to sign in.");

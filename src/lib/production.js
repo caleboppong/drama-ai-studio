@@ -3,6 +3,7 @@ import path from "path";
 import os from "os";
 import { randomUUID } from "crypto";
 import { spawn } from "child_process";
+import ffmpegStatic from "ffmpeg-static";
 
 export async function createProductionDirectory() {
   const directory = path.join(os.tmpdir(), `dramaai-${randomUUID()}`);
@@ -42,7 +43,8 @@ export async function downloadAsset(url, destination) {
 
 export function runFFmpeg(args) {
   return new Promise((resolve, reject) => {
-    const child = spawn("ffmpeg", args, { windowsHide: true });
+    const ffmpegExecutable = process.env.FFMPEG_PATH || ffmpegStatic || "ffmpeg";
+    const child = spawn(ffmpegExecutable, args, { windowsHide: true });
     let errorOutput = "";
     let settled = false;
 
@@ -57,7 +59,7 @@ export function runFFmpeg(args) {
       if (error.code === "ENOENT") {
         reject(
           new Error(
-            "FFmpeg could not be found. Restart the terminal after installing FFmpeg and confirm that ffmpeg -version works."
+            "FFmpeg executable is unavailable in the deployed server environment. Check ffmpeg-static installation and Vercel function tracing."
           )
         );
         return;

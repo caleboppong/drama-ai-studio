@@ -4743,3 +4743,27 @@ button:focus-visible,a:focus-visible{outline:3px solid #8c69ff;outline-offset:3p
   }
 }
 
+
+/* Production display on mobile: stage titles and details stay on separate lines. */
+.production-stage-list > div {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.production-stage-list > div > div { min-width: 0; }
+.production-stage-list > div strong,
+.production-stage-list > div small { display: block; overflow-wrap: anywhere; }
+.production-stage-list > div strong { font-size: 14px; line-height: 1.45; }
+.production-stage-list > div small { margin-top: 5px; font-size: 12px; line-height: 1.45; }
+.production-progress-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; margin-bottom: 10px; }
+.production-progress-top > span { min-width: 0; overflow-wrap: anywhere; }
+.production-progress-top > strong { flex-shrink: 0; }
+@media (max-width: 650px) {
+  .production-stage-list { grid-template-columns: 1fr; }
+  .production-stage-list > div { padding: 14px; }
+  .production-progress-top { align-items: flex-start; }
+}

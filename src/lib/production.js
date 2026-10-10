@@ -1,10 +1,10 @@
-import fs from "fs/promises";
-import path from "path";
-import os from "os";
-import { randomUUID } from "crypto";
-import { spawn } from "child_process";
-import ffmpegStatic from "ffmpeg-static";
+import fs from "node:fs/promises";
 import { statSync } from "node:fs";
+import path from "node:path";
+import os from "node:os";
+import { randomUUID } from "node:crypto";
+import { spawn } from "node:child_process";
+import ffmpegStatic from "ffmpeg-static";
 
 export async function createProductionDirectory() {
   const directory = path.join(os.tmpdir(), `dramaai-${randomUUID()}`);
@@ -45,13 +45,13 @@ export async function downloadAsset(url, destination) {
 export function runFFmpeg(args) {
   return new Promise((resolve, reject) => {
     const filename = process.platform === "win32" ? "ffmpeg.exe" : "ffmpeg";
+
     const candidates = [
       process.env.FFMPEG_PATH,
-      ffmpegStatic,
       path.join(process.cwd(), "node_modules", "ffmpeg-static", filename),
+      ffmpegStatic,
     ].filter(Boolean);
 
-    const fsSync = require("node:fs");
     const executable = candidates.find((candidate) => {
       try {
         return statSync(candidate).isFile();
@@ -62,13 +62,16 @@ export function runFFmpeg(args) {
 
     if (!executable) {
       reject(
-        new Error("FFmpeg executable was not found in the server environment."),
+        new Error(
+          "FFmpeg executable was not found. Check ffmpeg-static installation and Vercel file tracing.",
+        ),
       );
       return;
     }
 
-    const child = spawn(/* turbopackIgnore: true */ executable, args, {
+    const child = spawn(executable, args, {
       windowsHide: true,
+      stdio: ["ignore", "ignore", "pipe"],
     });
 
     let errorOutput = "";
@@ -76,15 +79,20 @@ export function runFFmpeg(args) {
 
     child.stderr.on("data", (data) => {
       errorOutput += data.toString();
+
+      if (errorOutput.length > 20000) {
+        errorOutput = errorOutput.slice(-10000);
+      }
     });
 
     child.on("error", (error) => {
       if (settled) return;
       settled = true;
+
       reject(new Error(`FFmpeg failed to start: ${error.message}`));
     });
 
-    child.on("close", (code) => {
+    child.on("close", (code, signal) => {
       if (settled) return;
       settled = true;
 
@@ -93,9 +101,11 @@ export function runFFmpeg(args) {
         return;
       }
 
-      const output = errorOutput.trim();
       reject(
-        new Error(output.slice(-5000) || `FFmpeg exited with code ${code}.`),
+        new Error(
+          errorOutput.trim().slice(-5000) ||
+            `FFmpeg exited with code ${code}, signal ${signal || "none"}.`,
+        ),
       );
     });
   });

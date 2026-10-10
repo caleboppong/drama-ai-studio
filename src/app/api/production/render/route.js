@@ -3,7 +3,7 @@ import fs from "fs/promises";
 import path from "path";
 
 import { createClient } from "@supabase/supabase-js";
-
+import { randomUUID } from "node:crypto";
 import {
   createProductionDirectory,
   removeProductionDirectory,
@@ -68,17 +68,31 @@ async function releaseCredits(userClient, jobId, reason) {
   }
 }
 
+async function verifyRenderLock(userClient, jobId, lockToken) {
+  const { data, error } = await userClient.rpc(
+    "verify_generation_render_lock",
+    {
+      p_job_id: jobId,
+      p_lock_token: lockToken,
+    },
+  );
+
+  if (error || data !== true) {
+    throw new Error(
+      "Rendering lock expired or was lost. Production must be checked before retrying.",
+    );
+  }
+}
+
 export async function POST(request) {
   let directory = null;
-
   let userClient = null;
-
   let jobId = null;
-
   let settlementCompleted = false;
-
   let finalAssetReady = false;
   let admin = null;
+  let renderLockAcquired = false;
+  const renderLockToken = randomUUID();
 
   try {
     if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
@@ -191,6 +205,40 @@ export async function POST(request) {
       );
     }
 
+    const { data: lockAcquired, error: lockError } = await userClient.rpc(
+      "acquire_generation_render_lock",
+      {
+        p_job_id: job.id,
+        p_lock_token: renderLockToken,
+      },
+    );
+
+    if (lockError) {
+      console.error("DramaAI render lock error:", lockError);
+
+      return Response.json(
+        {
+          success: false,
+          message: "Unable to acquire the production rendering lock.",
+        },
+        { status: 500 },
+      );
+    }
+
+    if (lockAcquired !== true) {
+      return Response.json(
+        {
+          success: false,
+          renderingInProgress: true,
+          message:
+            "This production job is already being rendered by another request.",
+        },
+        { status: 409 },
+      );
+    }
+
+    renderLockAcquired = true;
+
     if (!Number(job.credits_reserved)) {
       return Response.json(
         {
@@ -262,12 +310,14 @@ export async function POST(request) {
     if (existingFinalAsset?.public_url) {
       finalAssetReady = true;
 
+      await verifyRenderLock(userClient, job.id, renderLockToken);
+
       const { data: finalReady, error: finalReadyError } = await userClient.rpc(
-        "mark_generation_final_asset_ready",
+        "mark_generation_final_asset_ready_locked",
         {
           p_job_id: job.id,
-
           p_output_url: existingFinalAsset.public_url,
+          p_lock_token: renderLockToken,
         },
       );
 
@@ -276,17 +326,17 @@ export async function POST(request) {
       }
 
       const { data: completed, error: completeError } = await userClient.rpc(
-        "complete_generation_job",
+        "complete_generation_job_locked",
         {
           p_job_id: job.id,
-
           p_output_url: existingFinalAsset.public_url,
+          p_lock_token: renderLockToken,
         },
       );
 
       if (completeError) throw completeError;
 
-      if (!completed) {
+      if (completed !== true) {
         throw new Error(
           "The final video exists but production settlement could not be completed.",
         );
@@ -296,19 +346,12 @@ export async function POST(request) {
 
       return Response.json({
         success: true,
-
         existing: true,
-
         jobId: job.id,
-
         episodeId: episode.id,
-
         outputUrl: existingFinalAsset.public_url,
-
         asset: existingFinalAsset,
-
         progress: 100,
-
         status: "completed",
       });
     }
@@ -719,18 +762,17 @@ export async function POST(request) {
       throw new Error("The final video renderer returned an empty file.");
     }
 
+    await verifyRenderLock(userClient, job.id, renderLockToken);
+
     const storagePath =
       `${user.id}/${episode.id}/job-${job.id}/` +
-      `episode-${episode.episode_number}-final.mp4`;
+      `episode-${episode.episode_number}-${renderLockToken}-final.mp4`;
 
     const { error: uploadError } = await admin.storage
-
       .from("episode-media")
-
       .upload(storagePath, videoBuffer, {
         contentType: "video/mp4",
-
-        upsert: true,
+        upsert: false,
       });
 
     if (uploadError) throw uploadError;
@@ -851,13 +893,14 @@ export async function POST(request) {
 
     if (finalAssetError) throw finalAssetError;
 
-    const { data: finalReady, error: finalReadyError } = await userClient.rpc(
-      "mark_generation_final_asset_ready",
+    await verifyRenderLock(userClient, job.id, renderLockToken);
 
+    const { data: finalReady, error: finalReadyError } = await userClient.rpc(
+      "mark_generation_final_asset_ready_locked",
       {
         p_job_id: job.id,
-
         p_output_url: outputUrl,
+        p_lock_token: renderLockToken,
       },
     );
 
@@ -866,19 +909,19 @@ export async function POST(request) {
     }
 
     const { data: completed, error: completeError } = await userClient.rpc(
-      "complete_generation_job",
+      "complete_generation_job_locked",
       {
         p_job_id: job.id,
-
         p_output_url: outputUrl,
+        p_lock_token: renderLockToken,
       },
     );
 
     if (completeError) throw completeError;
 
-    if (!completed) {
+    if (completed !== true) {
       throw new Error(
-        "Production completed but the credit settlement could not be finalized.",
+        "Production completed but credit settlement could not be finalized.",
       );
     }
 
@@ -903,6 +946,26 @@ export async function POST(request) {
     });
   } catch (error) {
     console.error("DramaAI final render error:", error);
+
+    if (renderLockAcquired && userClient && jobId) {
+      const { data: stillOwnsLock, error: ownershipError } =
+        await userClient.rpc("verify_generation_render_lock", {
+          p_job_id: jobId,
+          p_lock_token: renderLockToken,
+        });
+
+      if (ownershipError || stillOwnsLock !== true) {
+        return Response.json(
+          {
+            success: false,
+            settlementPending: true,
+            message:
+              "Rendering ownership could not be verified. Credits have been left reserved for safety.",
+          },
+          { status: 409 },
+        );
+      }
+    }
 
     if (!settlementCompleted && finalAssetReady && userClient && jobId) {
       try {
@@ -1002,21 +1065,25 @@ export async function POST(request) {
       );
     }
 
-    if (!settlementCompleted) {
-      await releaseCredits(
-        userClient,
-
-        jobId,
-
-        error?.message || "Final rendering failed.",
+    if (!settlementCompleted && userClient && jobId) {
+      const { error: settlementError } = await userClient.rpc(
+        "record_generation_settlement_error",
+        {
+          p_job_id: jobId,
+          p_reason: error?.message || "Final rendering failed.",
+        },
       );
+
+      if (settlementError) {
+        console.error("Unable to record rendering failure:", settlementError);
+      }
     }
 
     return Response.json(
       {
         success: false,
 
-        settlementPending: false,
+        settlementPending: true,
 
         message: error?.message || "Final video rendering failed.",
       },
@@ -1024,6 +1091,24 @@ export async function POST(request) {
       { status: 500 },
     );
   } finally {
+    try {
+      if (renderLockAcquired && userClient && jobId) {
+        const { error: unlockError } = await userClient.rpc(
+          "release_generation_render_lock",
+          {
+            p_job_id: jobId,
+            p_lock_token: renderLockToken,
+          },
+        );
+
+        if (unlockError) {
+          console.error("DramaAI render unlock error:", unlockError);
+        }
+      }
+    } catch (unlockError) {
+      console.error("DramaAI render lock cleanup error:", unlockError);
+    }
+
     await removeProductionDirectory(directory);
   }
 }

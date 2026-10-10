@@ -2,7 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import { cleanProductionText } from "@/lib/production";
 
 export const runtime = "nodejs";
-export const maxDuration = 800;
+export const maxDuration = 300;
 
 const BASE = "https://api.dev.runwayml.com/v1";
 const VERSION = "2024-11-06";

@@ -43,8 +43,11 @@ export async function downloadAsset(url, destination) {
 
 export function runFFmpeg(args) {
   return new Promise((resolve, reject) => {
-    const ffmpegExecutable = process.env.FFMPEG_PATH || ffmpegStatic || "ffmpeg";
-    const child = spawn(ffmpegExecutable, args, { windowsHide: true });
+    const ffmpegExecutable =
+      process.env.FFMPEG_PATH || ffmpegStatic || "ffmpeg";
+    const child = spawn(/* turbopackIgnore: true */ ffmpegExecutable, args, {
+      windowsHide: true,
+    });
     let errorOutput = "";
     let settled = false;
 
@@ -59,8 +62,8 @@ export function runFFmpeg(args) {
       if (error.code === "ENOENT") {
         reject(
           new Error(
-            "FFmpeg executable is unavailable in the deployed server environment. Check ffmpeg-static installation and Vercel function tracing."
-          )
+            "FFmpeg executable is unavailable in the deployed server environment. Check ffmpeg-static installation and Vercel function tracing.",
+          ),
         );
         return;
       }
@@ -81,11 +84,7 @@ export function runFFmpeg(args) {
       const shortened =
         output.length > 5000 ? output.slice(output.length - 5000) : output;
 
-      reject(
-        new Error(
-          shortened || `FFmpeg exited with code ${code}.`
-        )
-      );
+      reject(new Error(shortened || `FFmpeg exited with code ${code}.`));
     });
   });
 }
@@ -94,10 +93,7 @@ export function cleanProductionText(value) {
   if (value === null || value === undefined) return "";
 
   if (typeof value === "string") {
-    return value
-      .replace(/\r/g, "")
-      .replace(/\s+/g, " ")
-      .trim();
+    return value.replace(/\r/g, "").replace(/\s+/g, " ").trim();
   }
 
   if (Array.isArray(value)) {
@@ -153,7 +149,7 @@ export function escapeSubtitleText(value) {
 export function secondsToVttTime(totalSeconds) {
   const milliseconds = Math.max(
     0,
-    Math.round(Number(totalSeconds || 0) * 1000)
+    Math.round(Number(totalSeconds || 0) * 1000),
   );
 
   const hours = Math.floor(milliseconds / 3600000);
@@ -196,8 +192,8 @@ export function createWebVtt(scenes) {
     if (caption) {
       cues.push(
         `${index + 1}\n${secondsToVttTime(start)} --> ${secondsToVttTime(
-          end
-        )}\n${caption}\n`
+          end,
+        )}\n${caption}\n`,
       );
     }
 
@@ -216,8 +212,5 @@ export function escapeFFmpegSubtitlePath(filePath) {
 }
 
 export function escapeConcatPath(filePath) {
-  return path
-    .resolve(filePath)
-    .replace(/\\/g, "/")
-    .replace(/'/g, "'\\''");
+  return path.resolve(filePath).replace(/\\/g, "/").replace(/'/g, "'\\''");
 }

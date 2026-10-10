@@ -4,6 +4,7 @@ import os from "os";
 import { randomUUID } from "crypto";
 import { spawn } from "child_process";
 import ffmpegStatic from "ffmpeg-static";
+import { statSync } from "node:fs";
 
 export async function createProductionDirectory() {
   const directory = path.join(os.tmpdir(), `dramaai-${randomUUID()}`);
@@ -43,11 +44,33 @@ export async function downloadAsset(url, destination) {
 
 export function runFFmpeg(args) {
   return new Promise((resolve, reject) => {
-    const ffmpegExecutable =
-      process.env.FFMPEG_PATH || ffmpegStatic || "ffmpeg";
-    const child = spawn(/* turbopackIgnore: true */ ffmpegExecutable, args, {
+    const filename = process.platform === "win32" ? "ffmpeg.exe" : "ffmpeg";
+    const candidates = [
+      process.env.FFMPEG_PATH,
+      ffmpegStatic,
+      path.join(process.cwd(), "node_modules", "ffmpeg-static", filename),
+    ].filter(Boolean);
+
+    const fsSync = require("node:fs");
+    const executable = candidates.find((candidate) => {
+      try {
+        return statSync(candidate).isFile();
+      } catch {
+        return false;
+      }
+    });
+
+    if (!executable) {
+      reject(
+        new Error("FFmpeg executable was not found in the server environment."),
+      );
+      return;
+    }
+
+    const child = spawn(/* turbopackIgnore: true */ executable, args, {
       windowsHide: true,
     });
+
     let errorOutput = "";
     let settled = false;
 
@@ -58,17 +81,7 @@ export function runFFmpeg(args) {
     child.on("error", (error) => {
       if (settled) return;
       settled = true;
-
-      if (error.code === "ENOENT") {
-        reject(
-          new Error(
-            "FFmpeg executable is unavailable in the deployed server environment. Check ffmpeg-static installation and Vercel function tracing.",
-          ),
-        );
-        return;
-      }
-
-      reject(error);
+      reject(new Error(`FFmpeg failed to start: ${error.message}`));
     });
 
     child.on("close", (code) => {
@@ -81,10 +94,9 @@ export function runFFmpeg(args) {
       }
 
       const output = errorOutput.trim();
-      const shortened =
-        output.length > 5000 ? output.slice(output.length - 5000) : output;
-
-      reject(new Error(shortened || `FFmpeg exited with code ${code}.`));
+      reject(
+        new Error(output.slice(-5000) || `FFmpeg exited with code ${code}.`),
+      );
     });
   });
 }

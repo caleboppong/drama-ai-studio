@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import "./sidebar-upgrade.css";
 
 const modes = {
   economy: {
@@ -1768,116 +1769,36 @@ export default function Home() {
 
   return (
     <div className="app-shell">
-      <aside className="sidebar">
-        <div>
-          <div className="brand">
+      <aside className="sidebar dramaai-sidebar">
+        <div className="dramaai-sidebar-upper">
+          <div className="brand dramaai-brand">
             <div className="brand-mark"><img src="/favicon.ico" alt="" width="30" height="30" /></div>
-            <div>
-              <strong>DramaAI</strong>
-              <span>Studio</span>
-            </div>
+            <div><strong>DramaAI</strong><span>Studio</span></div>
           </div>
-
-          <nav>
-            <button
-              type="button"
-              className={activePage === "dashboard" ? "nav-active" : ""}
-              onClick={openDashboard}
-            >
-              <span>⌂</span>
-              Dashboard
-            </button>
-
-            <button
-              type="button"
-              className={activePage === "create" ? "nav-active" : ""}
-              onClick={openCreatePage}
-            >
-              <span>＋</span>
-              Create Drama
-            </button>
-
-            <button
-              type="button"
-              onClick={() => router.push("/characters")}
-            >
-              <span aria-hidden="true">♧</span>
-              Character Studio
-            </button>
-
-            <button
-              type="button"
-              onClick={async () => {
-                setLibraryOpen(true);
-                setActivePage("library");
-                await loadCreatorLibrary();
-              }}
-              className={activePage === "library" ? "nav-active" : ""}
-            >
-              <span>▶</span>
-              My Series
-            </button>
-
-            <button
-              type="button"
-              className={activePage === "generations" ? "nav-active" : ""}
-              onClick={async () => {
-                setLibraryOpen(false);
-                setSelectedLibraryEpisode(null);
-                setActivePage("generations");
-                await loadGenerationJobs();
-              }}
-            >
-              <span>▣</span>
-              Generations
-            </button>
-
-            <button type="button" onClick={openBilling}>
-              <span>◈</span>
-              Credits
-            </button>
-
-            {profile?.role === "admin" && (
-              <button type="button" onClick={() => router.push("/admin")}>
-                <span>◆</span>
-                Admin
-              </button>
-            )}
+          <div className="dramaai-nav-label">WORKSPACE</div>
+          <nav className="dramaai-nav">
+            <button type="button" className={activePage === "dashboard" ? "nav-active" : ""} onClick={openDashboard}><span className="dramaai-nav-icon">⌂</span><span>Dashboard</span></button>
+            <button type="button" className={activePage === "create" ? "nav-active" : ""} onClick={openCreatePage}><span className="dramaai-nav-icon">✚</span><span>Create Drama</span></button>
+            <button type="button" onClick={() => router.push("/characters")}><span className="dramaai-nav-icon">♧</span><span>Character Studio</span></button>
+            <button type="button" className={activePage === "library" ? "nav-active" : ""} onClick={async () => { setLibraryOpen(true); setActivePage("library"); await loadCreatorLibrary(); }}><span className="dramaai-nav-icon">▤</span><span>My Series</span></button>
+            <button type="button" className={activePage === "generations" ? "nav-active" : ""} onClick={async () => { setLibraryOpen(false); setSelectedLibraryEpisode(null); setActivePage("generations"); await loadGenerationJobs(); }}><span className="dramaai-nav-icon">▣</span><span>Generations</span></button>
+            <button type="button" onClick={openBilling}><span className="dramaai-nav-icon">✦</span><span>Credits</span><span className="dramaai-credit-count">{credits}</span></button>
+            {profile?.role === "admin" && <button type="button" onClick={() => router.push("/admin")}><span className="dramaai-nav-icon">⚙</span><span>Admin</span></button>}
           </nav>
+          <div className="dramaai-nav-label dramaai-library-label">YOUR CONTENT</div>
+          <nav className="dramaai-nav dramaai-library-nav">
+            <button type="button" onClick={async () => { setLibraryOpen(true); setActivePage("library"); await loadCreatorLibrary(); }}><span className="dramaai-nav-icon">▥</span><span>Creator Library</span></button>
+            <button type="button" onClick={() => router.push("/profile")}><span className="dramaai-nav-icon">◉</span><span>My Profile</span></button>
+          </nav>
+          <div className="dramaai-sidebar-tip"><span>✦ CREATOR STUDIO</span><strong>Your next story starts here.</strong><p>Build characters, develop episodes and bring ideas to life.</p><button type="button" onClick={openCreatePage}>Create a story →</button></div>
         </div>
-
-        <div className="sidebar-bottom">
-          <button
-            type="button"
-            className="library-button"
-            onClick={async () => {
-              setLibraryOpen(true);
-              setActivePage("library");
-              await loadCreatorLibrary();
-            }}
-          >
-            Creator Library
+        <div className="sidebar-bottom dramaai-sidebar-bottom">
+          <button type="button" className="dramaai-profile-link" onClick={() => router.push("/profile")}>
+            <span className="avatar">{(profile?.display_name || user?.email || "C").charAt(0).toUpperCase()}</span>
+            <span className="profile-details"><strong>{profile?.display_name || "Creator"}</strong><small>{profile?.role || "creator"}</small></span>
+            <span className="dramaai-profile-chevron">›</span>
           </button>
-
-          <div className="profile">
-            <div className="avatar">
-              {(profile?.display_name || user?.email || "C")
-                .charAt(0)
-                .toUpperCase()}
-            </div>
-            <div className="profile-details">
-              <strong>{profile?.display_name || "Creator"}</strong>
-              <span>{profile?.role || "creator"}</span>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            className="logout-button"
-            onClick={handleLogout}
-          >
-            Sign out
-          </button>
+          <button type="button" className="logout-button dramaai-logout" onClick={handleLogout}><span aria-hidden="true">↪</span> Sign out</button>
         </div>
       </aside>
 
@@ -1960,7 +1881,7 @@ export default function Home() {
                   ["Fantasy", "Beyond imagination"],
                   ["Adventure", "Discover a new world"],
                 ].map(([name, description], index) => (
-                  <button type="button" className={`cinematic-genre-card cinematic-genre-${index + 1}`} key={name} onClick={() => { setGenre(name); openCreatePage(); }}>
+                  <button type="button" className={`cinematic-genre-card cinematic-genre-${index + 1}`} key={name} onClick={() => { openCreatePage(); setGenre(name); }}>
                     <span className="cinematic-genre-art" aria-hidden="true" />
                     <span className="cinematic-genre-content"><strong>{name}</strong><small>{description}</small></span>
                     <span className="cinematic-genre-arrow" aria-hidden="true">↗</span>

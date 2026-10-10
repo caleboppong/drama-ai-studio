@@ -1,0 +1,30 @@
+/* Scoped DramaAI sidebar refresh; does not change production, billing or episode logic. */
+.dramaai-sidebar{background:linear-gradient(165deg,#fff 0%,#f7f6ff 72%,#f0edff 100%);border-right:1px solid #e6e3fa;box-shadow:5px 0 26px rgba(47,35,120,.045);display:flex;flex-direction:column;justify-content:space-between;gap:20px;padding:24px 16px 16px;overflow-y:auto}
+.dramaai-sidebar .dramaai-brand{margin:0 4px 28px;display:flex;align-items:center;gap:12px}
+.dramaai-sidebar .dramaai-brand strong{font-size:21px;font-weight:850;letter-spacing:-.7px;color:#151735}
+.dramaai-sidebar .dramaai-brand span{display:block;font-size:12px;letter-spacing:1.8px;text-transform:uppercase;color:#746e9e;font-weight:700;margin-top:3px}
+.dramaai-sidebar .dramaai-nav-label{font-size:10px;letter-spacing:1.8px;font-weight:850;color:#9994b7;margin:0 14px 10px}
+.dramaai-sidebar nav.dramaai-nav{display:flex;flex-direction:column;gap:5px;margin:0}
+.dramaai-sidebar nav.dramaai-nav button{width:100%;display:flex;align-items:center;gap:13px;padding:12px 13px;border:1px solid transparent;border-radius:13px;background:transparent;color:#535879;font-weight:650;font-size:14px;text-align:left;transition:background .18s,color .18s,transform .18s;min-height:46px}
+.dramaai-sidebar nav.dramaai-nav button:hover{background:#eeebff;color:#4f30e8;transform:translateX(2px)}
+.dramaai-sidebar nav.dramaai-nav button.nav-active{background:linear-gradient(100deg,#eeeaff,#e1dfff);border-color:#ded8ff;color:#542cf0;box-shadow:inset 3px 0 #6335ff,0 5px 15px rgba(87,54,216,.07)}
+.dramaai-sidebar .dramaai-nav-icon{display:grid;place-items:center;flex:0 0 32px;width:32px;height:32px;border-radius:10px;background:#f0effa;color:#706e9f;font-size:20px;font-weight:750;line-height:1}
+.dramaai-sidebar .nav-active .dramaai-nav-icon{background:#fff;color:#6335ff}
+.dramaai-sidebar .dramaai-credit-count{margin-left:auto;font-size:12px;font-weight:800;color:#6335ff;background:#ede8ff;border-radius:20px;padding:3px 9px}
+.dramaai-sidebar .dramaai-library-label{margin-top:26px}
+.dramaai-sidebar .dramaai-sidebar-tip{margin:25px 4px 14px;padding:19px 17px;border-radius:18px;background:linear-gradient(140deg,#4930d8,#8544f6);color:white;box-shadow:0 12px 28px rgba(87,54,216,.18)}
+.dramaai-sidebar .dramaai-sidebar-tip>span{font-size:10px;letter-spacing:1.4px;font-weight:850;color:#e6ddff}
+.dramaai-sidebar .dramaai-sidebar-tip strong{display:block;font-size:16px;line-height:1.35;margin:9px 0}
+.dramaai-sidebar .dramaai-sidebar-tip p{font-size:12px;line-height:1.55;color:#eee8ff;margin:0 0 15px}
+.dramaai-sidebar .dramaai-sidebar-tip button{border:0;border-radius:10px;background:#fff;color:#5533d5;padding:10px 13px;font-size:12px;font-weight:800;cursor:pointer}
+.dramaai-sidebar .dramaai-sidebar-bottom{margin-top:auto;padding:14px 4px 0;border-top:1px solid #e7e4f5;display:flex;flex-direction:column;gap:12px}
+.dramaai-sidebar .dramaai-profile-link{display:flex;align-items:center;gap:11px;width:100%;padding:8px 5px;border:0;background:transparent;text-align:left;cursor:pointer}
+.dramaai-sidebar .dramaai-profile-link .avatar{flex:0 0 40px;width:40px;height:40px;display:grid;place-items:center;border-radius:13px;background:linear-gradient(135deg,#4632ed,#9653fa);color:white;font-size:17px;font-weight:800}
+.dramaai-sidebar .dramaai-profile-link .profile-details{display:flex;flex-direction:column;gap:4px;min-width:0;flex:1}
+.dramaai-sidebar .dramaai-profile-link .profile-details strong{font-size:13px;color:#202043;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dramaai-sidebar .dramaai-profile-link .profile-details small{font-size:11px;color:#817d9c;text-transform:capitalize}
+.dramaai-sidebar .dramaai-profile-chevron{font-size:25px;color:#938cac}
+.dramaai-sidebar button.dramaai-logout{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px;border-radius:12px;border:1px solid #ffe0e9;background:#fff0f4;color:#d73565;font-size:13px;font-weight:800;cursor:pointer}
+.dramaai-sidebar button.dramaai-logout:hover{background:#ffe3eb}
+@media(max-width:900px){.dramaai-sidebar .dramaai-sidebar-tip{display:none}.dramaai-sidebar{padding:14px 10px}.dramaai-sidebar .dramaai-brand{margin-bottom:15px}}
+@media(max-width:600px){.dramaai-sidebar .dramaai-nav-label{margin-top:12px}.dramaai-sidebar nav.dramaai-nav{gap:3px}.dramaai-sidebar nav.dramaai-nav button{min-height:42px;padding:9px 10px}.dramaai-sidebar .dramaai-sidebar-bottom{margin-top:14px}}

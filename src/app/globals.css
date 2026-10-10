@@ -4438,3 +4438,308 @@ button:focus-visible,a:focus-visible{outline:3px solid #8c69ff;outline-offset:3p
 
 /* Customer profile */
 .profile-page{min-height:100vh;background:linear-gradient(135deg,#eef1ff,#faf8ff 58%,#eee8ff);padding:clamp(24px,5vw,72px) 18px;color:#202044}.profile-panel{max-width:860px;margin:auto;background:#fff;border:1px solid #e3dfff;border-radius:24px;box-shadow:0 18px 60px #45418d1a;padding:clamp(22px,4vw,46px)}.profile-header{display:flex;justify-content:space-between;gap:18px;align-items:start;margin-bottom:28px}.profile-header h1{font-size:clamp(30px,4vw,44px);margin:5px 0}.profile-header p{color:#646484}.profile-header a{color:#5748ce;text-decoration:none;font-weight:700}.profile-eyebrow{font-size:12px;letter-spacing:.16em;font-weight:800}.profile-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.profile-field{display:flex;flex-direction:column;gap:7px;font-weight:650;font-size:14px;margin-bottom:16px}.profile-field input{width:100%;border:1px solid #d8d7e8;border-radius:12px;padding:13px 14px;background:white;color:#252542;font-size:15px}.profile-field input:focus{outline:2px solid #8678f3;outline-offset:1px}.profile-field input:disabled{background:#f3f3f9;color:#6c6c81}.profile-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px}.profile-actions button{background:#6352dc;border:0;border-radius:12px;color:white;padding:13px 21px;cursor:pointer;font-weight:750}.profile-actions button.profile-secondary{background:#f0edff;color:#5040c6}.profile-actions button:disabled{opacity:.6}.profile-status{margin-top:16px;color:#4740a3}@media(max-width:640px){.profile-grid{grid-template-columns:1fr}.profile-header{flex-direction:column}}
+
+/* Cinematic image clarity: keep photography vivid and text readable */
+.cinematic-hero-art {
+  background-image: linear-gradient(0deg, rgba(20, 12, 53, 0.12), transparent 24%), url('/dramaai-cast.webp');
+  filter: saturate(1.13) contrast(1.06);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 8%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 8%);
+}
+.cinematic-genre-art {
+  filter: saturate(1.16) contrast(1.07);
+}
+.cinematic-genre-card::after {
+  background: linear-gradient(0deg, rgba(11, 10, 35, 0.72) 0%, rgba(18, 10, 61, 0.02) 68%);
+}
+@media (max-width: 760px) {
+  .cinematic-hero-art {
+    mask-image: none;
+    -webkit-mask-image: none;
+  }
+}
+
+
+/* DramaAI Studio - sharper cinematic images */
+
+.auth-art {
+  background-image: url("/dramaai-cast.webp");
+  background-size: cover;
+  background-position: center 20%;
+  transform: none;
+  animation: none;
+  filter: none;
+}
+
+.auth-brand::after {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(9, 12, 45, 0.18) 0%,
+      rgba(9, 12, 45, 0.04) 38%,
+      rgba(9, 12, 45, 0.48) 75%,
+      rgba(9, 12, 45, 0.75) 100%
+    );
+}
+
+.auth-light {
+  opacity: 0.3;
+}
+
+.cinematic-hero-art {
+  background-image: url("/dramaai-cast.webp");
+  background-size: cover;
+  background-position: center 20%;
+  filter: none;
+  mask-image: none;
+  -webkit-mask-image: none;
+}
+
+.cinematic-genre-art {
+  background-size: cover;
+  background-position: center;
+  filter: none;
+}
+
+.cinematic-genre-card::after {
+  background: linear-gradient(
+    0deg,
+    rgba(11, 10, 35, 0.72) 0%,
+    rgba(11, 10, 35, 0) 65%
+  );
+}
+
+@media (max-width: 800px) {
+  .auth-art {
+    background-position: center 20%;
+  }
+
+  .cinematic-hero-art {
+    background-position: center 20%;
+  }
+}
+
+
+/* Ultra-clear cinematic images */
+.cinematic-hero-art {
+  background-image: url("/dramaai-cast.webp");
+  background-size: cover;
+  background-position: center 24%;
+  filter: brightness(1.08) contrast(1.12) saturate(1.18);
+  mask-image: none;
+  -webkit-mask-image: none;
+}
+
+.cinematic-genre-art {
+  background-size: cover;
+  background-position: center;
+  filter: brightness(1.08) contrast(1.12) saturate(1.2);
+}
+
+.cinematic-genre-card::after {
+  background: linear-gradient(
+    to top,
+    rgba(8, 7, 28, 0.68) 0%,
+    rgba(8, 7, 28, 0.12) 35%,
+    transparent 70%
+  );
+}
+
+/* Sharper login and signup background */
+.auth-art {
+  background-image: url("/dramaai-cast.webp");
+  background-size: cover;
+  background-position: center 24%;
+  filter: brightness(1.12) contrast(1.12) saturate(1.18);
+  transform: none;
+  animation: none;
+}
+
+.auth-brand::after {
+  background: linear-gradient(
+    to top,
+    rgba(9, 8, 35, 0.65) 0%,
+    rgba(9, 8, 35, 0.08) 45%,
+    transparent 80%
+  );
+}
+
+.auth-light {
+  opacity: 0.25;
+}
+
+@media (max-width: 760px) {
+  .cinematic-hero-art {
+    background-position: center 20%;
+  }
+}
+
+
+/* Premium DramaAI Studio sidebar */
+.sidebar {
+  width: 260px;
+  padding: 24px 16px;
+  background: linear-gradient(180deg, #ffffff 0%, #f7f6ff 100%);
+  border-right: 1px solid #e8e5f5;
+  box-shadow: 5px 0 28px rgba(48, 38, 112, 0.045);
+}
+
+.app-shell {
+  grid-template-columns: 260px minmax(0, 1fr);
+}
+
+.brand {
+  gap: 13px;
+  padding: 10px 12px 28px;
+  border-bottom: 1px solid #eae7f5;
+  margin-bottom: 24px;
+}
+
+.brand-mark {
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #168cff, #7837ed);
+  box-shadow: 0 8px 20px rgba(90, 58, 220, 0.18);
+}
+
+.brand strong {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: #17143d;
+}
+
+.brand span {
+  font-size: 12px;
+  color: #777c98;
+}
+
+.sidebar nav {
+  display: grid;
+  gap: 8px;
+}
+
+.sidebar nav button,
+.sidebar-bottom > button {
+  min-height: 49px;
+  padding: 13px 15px;
+  border-radius: 13px;
+  color: #535b7b;
+  font-size: 14px;
+  font-weight: 650;
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+}
+
+.sidebar nav button svg,
+.sidebar-bottom > button svg {
+  width: 19px;
+  height: 19px;
+  flex-shrink: 0;
+  stroke-width: 2;
+}
+
+.sidebar nav button:hover,
+.sidebar-bottom > button:hover {
+  background: #f0ecff;
+  color: #6240dd;
+  transform: translateX(3px);
+}
+
+.sidebar nav button.nav-active,
+.sidebar nav .nav-active {
+  background: linear-gradient(105deg, #eef3ff, #eee5ff) !important;
+  color: #5734e7 !important;
+  font-weight: 800;
+  box-shadow: inset 3px 0 0 #6737ed;
+}
+
+.sidebar-bottom {
+  display: grid;
+  gap: 10px;
+}
+
+.sidebar-bottom > button {
+  font-size: 14px;
+}
+
+.sidebar-bottom > button.logout-button {
+  color: #b34460 !important;
+  background: #fff2f5;
+}
+
+.sidebar-bottom > button.logout-button:hover {
+  background: #ffe7ed !important;
+}
+
+.sidebar .profile {
+  margin-top: 12px;
+  padding: 20px 10px 4px;
+  border-top: 1px solid #e5e1f2;
+  gap: 12px;
+}
+
+.sidebar .avatar {
+  width: 43px;
+  height: 43px;
+  flex: 0 0 43px;
+  background: linear-gradient(135deg, #247bff, #7635ee);
+  box-shadow: 0 6px 15px rgba(94, 58, 220, 0.18);
+  font-size: 16px;
+}
+
+.sidebar .profile-details strong {
+  font-size: 13px;
+  color: #19173c;
+}
+
+.sidebar .profile-details span {
+  font-size: 12px;
+  color: #7b8098;
+}
+
+@media (max-width: 1000px) {
+  .app-shell {
+    display: block;
+  }
+
+  .sidebar {
+    position: static;
+    width: 100%;
+    padding: 18px;
+  }
+
+  .sidebar nav {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+  }
+
+  .sidebar nav button {
+    flex-shrink: 0;
+    min-width: max-content;
+  }
+
+  .sidebar nav button:hover {
+    transform: none;
+  }
+
+  .sidebar-bottom {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .brand {
+    padding: 6px 5px 15px;
+    margin-bottom: 14px;
+  }
+
+  .sidebar nav button {
+    min-height: 44px;
+    padding: 10px 13px;
+    font-size: 13px;
+  }
+}
+
